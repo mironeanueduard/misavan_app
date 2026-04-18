@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Import Excel{% endblock %}
+{% block page_title %}Import Excel{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <div class="panel-header">
+        <h2>Încarcă fișier Excel</h2>
+    </div>
+
+    {% if message %}
+        <div class="alert {{ message_type }}">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" class="upload-box">
+        <p>Selectează un fișier Excel pentru import.</p>
+
+        <div class="upload-actions">
+            <input type="file" name="excel_file" id="excel_file" accept=".xlsx" hidden>
+            <label for="excel_file" class="primary-btn">Alege fișier</label>
+            <span id="file-name" class="file-name">Niciun fișier selectat</span>
+        </div>
+
+        <button type="submit" class="primary-btn secondary-btn">Încarcă</button>
+    </form>
+</section>
+
+{% if uploaded_filename %}
+<section class="panel">
+    <div class="panel-header">
+        <h2>Rezultat validare</h2>
+    </div>
+
+    <div class="preview-info">
+        <p><strong>Fișier:</strong> {{ uploaded_filename }}</p>
+        <p><strong>Sheet activ:</strong> {{ sheet_name }}</p>
+        <p><strong>Total rânduri date:</strong> {{ total_data_rows }}</p>
+        <p><strong>Header detectat la rândul:</strong> {{ header_row_index + 1 }}</p>
+    </div>
+
+    <div class="validation-grid">
+        <div class="validation-box">
+            <h3>Coloane obligatorii</h3>
+            <ul class="column-list">
+                {% for col in required_columns %}
+                    <li>{{ col }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="validation-box">
+            <h3>Coloane detectate</h3>
+            <ul class="column-list">
+                {% for col in detected_columns %}
+                    <li>{{ col }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="validation-status">
+        {% if missing_columns %}
+            <div class="alert error">
+                <strong>Lipsesc coloanele:</strong>
+                {{ missing_columns | join(', ') }}
+            </div>
+        {% else %}
+            <div class="alert success">
+                Toate coloanele obligatorii au fost găsite.
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-header">
+        <h2>Preview Excel</h2>
+    </div>
+
+    {% if preview_headers and preview_rows %}
+        <p class="preview-note">
+            Se afișează primele 20 rânduri din fișier.
+        </p>
+
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        {% for header in preview_headers %}
+                            <th>{{ header }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in preview_rows %}
+                        <tr>
+                            {% for cell in row %}
+                                <td>{{ cell }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>Fișierul a fost încărcat, dar nu s-au găsit date pentru preview.</p>
+    {% endif %}
+</section>
+{% endif %}
+
+<section class="panel">
+    <div class="panel-header">
+        <h2>Importuri recente</h2>
+    </div>
+
+    {% if recent_imports %}
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nume fișier</th>
+                        <th>Sheet</th>
+                        <th>Dată import</th>
+                        <th>Status</th>
+                        <th>Total rânduri</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in recent_imports %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.filename }}</td>
+                        <td>{{ item.sheet_name }}</td>
+                        <td>{{ item.imported_at.strftime("%d.%m.%Y %H:%M") }}</td>
+                        <td>
+                            <span class="status-badge {{ item.status | lower }}">
+                                {{ item.status }}
+                            </span>
+                        </td>
+                        <td>{{ item.total_rows }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h3>Nu există importuri încă</h3>
+            <p>Încarcă primul fișier Excel pentru a vedea istoricul aici.</p>
+        </div>
+    {% endif %}
+</section>
+<script>
+    const fileInput = document.getElementById("excel_file");
+    const fileName = document.getElementById("file-name");
+
+    fileInput.addEventListener("change", function () {
+        if (this.files.length > 0) {
+            fileName.textContent = this.files[0].name;
+        } else {
+            fileName.textContent = "Niciun fișier selectat";
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Monitorizare{% endblock %}
+{% block page_title %}Monitorizare{% endblock %}
+
+{% block content %}
+
+<section class="panel">
+    <div class="panel-header">
+        <h2>Filtre</h2>
+    </div>
+
+    <form method="GET" action="/monitorizare" class="filters-row">
+        <input
+            type="text"
+            name="filiala"
+            placeholder="Filtrează după filială..."
+            class="filter-input"
+            value="{{ filiala_filter }}"
+        >
+
+        <input
+            type="text"
+            name="ruta"
+            placeholder="Filtrează după rută..."
+            class="filter-input"
+            value="{{ ruta_filter }}"
+        >
+
+        <button type="submit" class="primary-btn">Aplică filtre</button>
+        <a href="/monitorizare" class="reset-btn">Resetează</a>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="panel-header">
+        <h2>Date importate din Excel</h2>
+        <p>Se afișează ultimele 100 înregistrări filtrate.</p>
+    </div>
+
+    {% if records %}
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Data</th>
+                        <th>Filială</th>
+                        <th>Rută</th>
+                        <th>Km</th>
+                        <th>Nr Doc</th>
+                        <th>Valoare</th>
+                        <th>Cost</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for row in records %}
+                    <tr>
+                        <td>{{ row.id }}</td>
+                        <td>{{ row.data }}</td>
+                        <td>{{ row.filiala }}</td>
+                        <td>{{ row.ruta }}</td>
+                        <td>{{ row.km }}</td>
+                        <td>{{ row.nr_documente }}</td>
+                        <td>{{ row.valoare_ron }}</td>
+                        <td>{{ row.cost_ron }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% else %}
+        <div class="empty-state">
+            <h3>Nu există rezultate</h3>
+            <p>Încearcă alte filtre sau încarcă un fișier Excel.</p>
+        </div>
+    {% endif %}
+</section>
+
+{% endblock %}

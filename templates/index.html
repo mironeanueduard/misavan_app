@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="cards-grid">
+    <div class="stat-card">
+        <p class="stat-label">Total Înregistrări</p>
+        <h3>{{ total_inregistrari }}</h3>
+    </div>
+
+    <div class="stat-card">
+        <p class="stat-label">Total Km</p>
+        <h3>{{ total_km }}</h3>
+    </div>
+
+    <div class="stat-card">
+        <p class="stat-label">Total Valoare</p>
+        <h3>{{ total_valoare }} RON</h3>
+    </div>
+
+    <div class="stat-card">
+        <p class="stat-label">Total Cost</p>
+        <h3>{{ total_cost }} RON</h3>
+    </div>
+
+    <div class="stat-card">
+        <p class="stat-label">Profit</p>
+        <h3>{{ profit }} RON</h3>
+    </div>
+
+    <div class="stat-card">
+        <p class="stat-label">Rentabilitate</p>
+        <h3>{{ rentabilitate }}%</h3>
+    </div>
+</div>
+
+<div class="content-grid">
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Rezumat general</h2>
+        </div>
+        <p>
+            Dashboard-ul afișează indicatorii principali calculați din datele importate
+            din Excel și salvate în baza de date.
+        </p>
+    </section>
+
+    <section class="panel">
+        <div class="panel-header">
+            <h2>Valoare totală pe filială</h2>
+        </div>
+        <div class="chart-box">
+            <canvas id="branchValueChart"></canvas>
+        </div>
+    </section>
+</div>
+
+<section class="panel">
+    <div class="panel-header">
+        <h2>Sumar KPI</h2>
+    </div>
+<section class="panel">
+    <div class="panel-header">
+        <h2>Sumar pe filiale</h2>
+    </div>
+
+    {% if filiale_summary %}
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Filială</th>
+                        <th>Total Km</th>
+                        <th>Total Valoare</th>
+                        <th>Total Cost</th>
+                        <th>Profit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in filiale_summary %}
+                    <tr>
+                        <td>{{ item.filiala }}</td>
+                        <td>{{ item.total_km | round(2) }}</td>
+                        <td>{{ item.total_valoare | round(2) }} RON</td>
+                        <td>{{ item.total_cost | round(2) }} RON</td>
+                        <td>{{ item.profit | round(2) }} RON</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h3>Nu există date</h3>
+            <p>Încarcă un fișier Excel pentru a vedea sumarul pe filiale.</p>
+        </div>
+    {% endif %}
+</section>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Indicator</th>
+                <th>Valoare</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Total înregistrări</td>
+                <td>{{ total_inregistrari }}</td>
+            </tr>
+            <tr>
+                <td>Total Km</td>
+                <td>{{ total_km }}</td>
+            </tr>
+            <tr>
+                <td>Total valoare</td>
+                <td>{{ total_valoare }} RON</td>
+            </tr>
+            <tr>
+                <td>Total cost</td>
+                <td>{{ total_cost }} RON</td>
+            </tr>
+            <tr>
+                <td>Profit</td>
+                <td>{{ profit }} RON</td>
+            </tr>
+            <tr>
+                <td>Rentabilitate</td>
+                <td>{{ rentabilitate }}%</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<script id="chart-data" type="application/json">
+    {{ {"labels": chart_labels, "values": chart_values} | tojson }}
+</script>
+
+<script>
+    const chartDataElement = document.getElementById("chart-data");
+    const chartData = JSON.parse(chartDataElement.textContent);
+
+    const chartLabels = chartData.labels;
+    const chartValues = chartData.values;
+
+    const ctx = document.getElementById("branchValueChart").getContext("2d");
+
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: "Valoare totală (RON)",
+                data: chartValues,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+</script>
+{% endblock %}

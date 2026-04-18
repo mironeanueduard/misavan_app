@@ -4,3 +4,5 @@ venv/
 .venv/
 .env
 .vscode/
+app.db
+uploads/

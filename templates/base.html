@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Misavan App{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>Misavan App</h2>
+            </div>
+
+           <nav class="sidebar-nav">
+    <a href="/" class="sidebar-link {% if request.path == '/' %}active{% endif %}">Dashboard</a>
+    <a href="/import" class="sidebar-link {% if request.path == '/import' %}active{% endif %}">Import Excel</a>
+    <a href="/monitorizare" class="sidebar-link {% if request.path == '/monitorizare' %}active{% endif %}">Monitorizare</a>
+</nav>
+        </aside>
+
+        <div class="main-area">
+            <header class="topbar">
+                <div>
+                    <h1 class="topbar-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                </div>
+                <div class="topbar-user">
+                    Admin
+                </div>
+            </header>
+
+            <main class="content-area">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+   
+  
+</body>
+</html>
