@@ -14,19 +14,36 @@ class ImportHistory(db.Model):
     total_rows = db.Column(db.Integer, default=0, nullable=False)
     status = db.Column(db.String(50), nullable=False)
 
-    transport_rows = db.relationship("TransportData", backref="import_record", lazy=True)
 
-
-class TransportData(db.Model):
-    __tablename__ = "transport_data"
+class VehicleExpense(db.Model):
+    __tablename__ = "vehicle_expenses"
 
     id = db.Column(db.Integer, primary_key=True)
     import_id = db.Column(db.Integer, db.ForeignKey("imports.id"), nullable=False)
 
-    data = db.Column(db.String(50), nullable=True)
-    filiala = db.Column(db.String(100), nullable=True)
-    ruta = db.Column(db.String(100), nullable=True)
-    km = db.Column(db.Float, nullable=True)
-    nr_documente = db.Column(db.Integer, nullable=True)
-    valoare_ron = db.Column(db.Float, nullable=True)
-    cost_ron = db.Column(db.Float, nullable=True)
+    numar = db.Column(db.String(100), nullable=True)
+    marca = db.Column(db.String(100), nullable=True)
+    model = db.Column(db.String(100), nullable=True)
+    tip = db.Column(db.String(100), nullable=True)
+    departament = db.Column(db.String(100), nullable=True)
+    locatie = db.Column(db.String(100), nullable=True)
+    centru_cost = db.Column(db.String(100), nullable=True)
+    entitate = db.Column(db.String(100), nullable=True)
+    status = db.Column(db.String(100), nullable=True)
+    sofer = db.Column(db.String(150), nullable=True)
+
+    revizii = db.Column(db.Float, default=0)
+    reparatii = db.Column(db.Float, default=0)
+    carburant = db.Column(db.Float, default=0)
+    anvelope = db.Column(db.Float, default=0)
+    acumulatori = db.Column(db.Float, default=0)
+    accident = db.Column(db.Float, default=0)
+    amenzi = db.Column(db.Float, default=0)
+    alte_cheltuieli = db.Column(db.Float, default=0)
+    retineri = db.Column(db.Float, default=0)
+    rate = db.Column(db.Float, default=0)
+    amortizari = db.Column(db.Float, default=0)
+
+    total_reparatii = db.Column(db.Float, default=0)
+    total_taxe = db.Column(db.Float, default=0)
+    total_general = db.Column(db.Float, default=0)

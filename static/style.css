@@ -3,20 +3,19 @@
     padding: 0;
     box-sizing: border-box;
 }
-
-body {
+html, body {
     font-family: Arial, sans-serif;
     background-color: #f3f6fb;
     color: #1f2937;
-}
-
-a {
-    text-decoration: none;
+    width: 100%;
+    min-height: 100%;
+    margin: 0; /* asigură-te că nu există margin implicit */
 }
 
 .app-layout {
     display: flex;
     min-height: 100vh;
+    width: 100%; /* sau poți folosi: width: 100vw */
 }
 
 /* SIDEBAR */
@@ -63,12 +62,16 @@ a {
     font-weight: 700;
     border-color: rgba(255, 255, 255, 0.3);
 }
+a {
+    text-decoration: none;
+}
 
-/* MAIN */
-.main-section {
+.main-area {
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-width: 0; /* IMPORTANT: previne overflow-ul în flexbox */
+    width: 100%; /* ocupă tot spațiul rămas */
 }
 
 .topbar {
@@ -269,6 +272,7 @@ a {
     .content-area {
         padding: 16px;
     }
+}
 
 .preview-info {
     margin-bottom: 18px;
@@ -397,4 +401,4 @@ a {
     vertical-align: middle;
 }
 
-}
+

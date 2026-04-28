@@ -7,24 +7,33 @@
 
 <section class="panel">
     <div class="panel-header">
-        <h2>Filtre</h2>
+        <h2>Filtre monitorizare</h2>
+        <p>Caută în datele importate din raportul Excel.</p>
     </div>
 
     <form method="GET" action="/monitorizare" class="filters-row">
         <input
             type="text"
-            name="filiala"
-            placeholder="Filtrează după filială..."
+            name="numar"
+            placeholder="Număr înmatriculare..."
             class="filter-input"
-            value="{{ filiala_filter }}"
+            value="{{ numar_filter }}"
         >
 
         <input
             type="text"
-            name="ruta"
-            placeholder="Filtrează după rută..."
+            name="locatie"
+            placeholder="Locație..."
             class="filter-input"
-            value="{{ ruta_filter }}"
+            value="{{ locatie_filter }}"
+        >
+
+        <input
+            type="text"
+            name="sofer"
+            placeholder="Șofer..."
+            class="filter-input"
+            value="{{ sofer_filter }}"
         >
 
         <button type="submit" class="primary-btn">Aplică filtre</button>
@@ -32,10 +41,37 @@
     </form>
 </section>
 
+<div class="cards-grid">
+    <div class="stat-card expense-repairs">
+        <p class="stat-label">Reparații filtrate</p>
+        <h3>{{ total_reparatii }} RON</h3>
+    </div>
+
+    <div class="stat-card expense-fuel">
+        <p class="stat-label">Carburant filtrat</p>
+        <h3>{{ total_carburant }} RON</h3>
+    </div>
+
+    <div class="stat-card expense-taxes">
+        <p class="stat-label">Taxe filtrate</p>
+        <h3>{{ total_taxe }} RON</h3>
+    </div>
+
+    <div class="stat-card expense-tires">
+        <p class="stat-label">Anvelope filtrate</p>
+        <h3>{{ total_anvelope }} RON</h3>
+    </div>
+
+    <div class="stat-card expense-total">
+        <p class="stat-label">Total filtrat</p>
+        <h3>{{ total_general }} RON</h3>
+    </div>
+</div>
+
 <section class="panel">
     <div class="panel-header">
-        <h2>Date importate din Excel</h2>
-        <p>Se afișează ultimele 100 înregistrări filtrate.</p>
+        <h2>Date monitorizare</h2>
+        <p>Se afișează maximum 200 de înregistrări.</p>
     </div>
 
     {% if records %}
@@ -43,34 +79,39 @@
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Data</th>
-                        <th>Filială</th>
-                        <th>Rută</th>
-                        <th>Km</th>
-                        <th>Nr Doc</th>
-                        <th>Valoare</th>
-                        <th>Cost</th>
+                        <th>Număr</th>
+                        <th>Marcă</th>
+                        <th>Model</th>
+                        <th>Locație</th>
+                        <th>Centru cost</th>
+                        <th>Șofer</th>
+                        <th>Reparații</th>
+                        <th>Carburant</th>
+                        <th>Taxe</th>
+                        <th>Anvelope</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     {% for row in records %}
                     <tr>
-                        <td>{{ row.id }}</td>
-                        <td>{{ row.data }}</td>
-                        <td>{{ row.filiala }}</td>
-                        <td>{{ row.ruta }}</td>
-                        <td>{{ row.km }}</td>
-                        <td>{{ row.nr_documente }}</td>
-                        <td>{{ row.valoare_ron }}</td>
-                        <td>{{ row.cost_ron }}</td>
+                        <td>{{ row.numar }}</td>
+                        <td>{{ row.marca }}</td>
+                        <td>{{ row.model }}</td>
+                        <td>{{ row.locatie }}</td>
+                        <td>{{ row.centru_cost }}</td>
+                        <td>{{ row.sofer }}</td>
+                        <td>{{ row.total_reparatii | round(2) }}</td>
+                        <td>{{ row.carburant | round(2) }}</td>
+                        <td>{{ row.total_taxe | round(2) }}</td>
+                        <td>{{ row.anvelope | round(2) }}</td>
+                        <td><strong>{{ row.total_general | round(2) }}</strong></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-
     {% else %}
         <div class="empty-state">
             <h3>Nu există rezultate</h3>

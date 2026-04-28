@@ -4,35 +4,53 @@
 {% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
+
+<div class="dashboard-filter-panel">
+    <strong>Perioada:</strong>
+
+    <select class="filter-input small-filter">
+        <option>Aprilie</option>
+        <option>Martie</option>
+        <option>Februarie</option>
+    </select>
+
+    <select class="filter-input small-filter">
+        <option>2026</option>
+        <option>2025</option>
+    </select>
+
+    <button class="primary-btn">Afișează</button>
+</div>
+
 <div class="cards-grid">
-    <div class="stat-card">
-        <p class="stat-label">Total Înregistrări</p>
-        <h3>{{ total_inregistrari }}</h3>
+    <div class="stat-card expense-repairs">
+        <p class="stat-label">Reparații</p>
+        <h3>{{ total_reparatii }} RON</h3>
+        <span class="card-helper">Revizii + Reparații</span>
     </div>
 
-    <div class="stat-card">
-        <p class="stat-label">Total Km</p>
-        <h3>{{ total_km }}</h3>
+    <div class="stat-card expense-fuel">
+        <p class="stat-label">Carburant</p>
+        <h3>{{ total_carburant }} RON</h3>
+        <span class="card-helper">Coloană unică</span>
     </div>
 
-    <div class="stat-card">
-        <p class="stat-label">Total Valoare</p>
-        <h3>{{ total_valoare }} RON</h3>
+    <div class="stat-card expense-taxes">
+        <p class="stat-label">Taxe</p>
+        <h3>{{ total_taxe }} RON</h3>
+        <span class="card-helper">Costuri grupate</span>
     </div>
 
-    <div class="stat-card">
-        <p class="stat-label">Total Cost</p>
-        <h3>{{ total_cost }} RON</h3>
+    <div class="stat-card expense-tires">
+        <p class="stat-label">Anvelope</p>
+        <h3>{{ total_anvelope }} RON</h3>
+        <span class="card-helper">Coloană unică</span>
     </div>
 
-    <div class="stat-card">
-        <p class="stat-label">Profit</p>
-        <h3>{{ profit }} RON</h3>
-    </div>
-
-    <div class="stat-card">
-        <p class="stat-label">Rentabilitate</p>
-        <h3>{{ rentabilitate }}%</h3>
+    <div class="stat-card expense-total">
+        <p class="stat-label">Total</p>
+        <h3>{{ total_general }} RON</h3>
+        <span class="card-helper">Total cheltuieli</span>
     </div>
 </div>
 
@@ -42,14 +60,13 @@
             <h2>Rezumat general</h2>
         </div>
         <p>
-            Dashboard-ul afișează indicatorii principali calculați din datele importate
-            din Excel și salvate în baza de date.
+            Dashboard-ul afișează totalurile calculate din raportul de cheltuieli auto importat din Excel.
         </p>
     </section>
 
     <section class="panel">
         <div class="panel-header">
-            <h2>Valoare totală pe filială</h2>
+            <h2>Distribuție cheltuieli</h2>
         </div>
         <div class="chart-box">
             <canvas id="branchValueChart"></canvas>
@@ -59,83 +76,49 @@
 
 <section class="panel">
     <div class="panel-header">
-        <h2>Sumar KPI</h2>
-    </div>
-<section class="panel">
-    <div class="panel-header">
-        <h2>Sumar pe filiale</h2>
+        <h2>Sumar cheltuieli</h2>
     </div>
 
-    {% if filiale_summary %}
-        <div class="table-wrapper">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Filială</th>
-                        <th>Total Km</th>
-                        <th>Total Valoare</th>
-                        <th>Total Cost</th>
-                        <th>Profit</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in filiale_summary %}
-                    <tr>
-                        <td>{{ item.filiala }}</td>
-                        <td>{{ item.total_km | round(2) }}</td>
-                        <td>{{ item.total_valoare | round(2) }} RON</td>
-                        <td>{{ item.total_cost | round(2) }} RON</td>
-                        <td>{{ item.profit | round(2) }} RON</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% else %}
-        <div class="empty-state">
-            <h3>Nu există date</h3>
-            <p>Încarcă un fișier Excel pentru a vedea sumarul pe filiale.</p>
-        </div>
-    {% endif %}
-</section>
     <table class="data-table">
         <thead>
             <tr>
-                <th>Indicator</th>
+                <th>Categorie</th>
                 <th>Valoare</th>
+                <th>Observație</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>Total înregistrări</td>
-                <td>{{ total_inregistrari }}</td>
+                <td>Reparații</td>
+                <td>{{ total_reparatii }} RON</td>
+                <td>Revizii + Reparații</td>
             </tr>
             <tr>
-                <td>Total Km</td>
-                <td>{{ total_km }}</td>
+                <td>Carburant</td>
+                <td>{{ total_carburant }} RON</td>
+                <td>Coloană unică</td>
             </tr>
             <tr>
-                <td>Total valoare</td>
-                <td>{{ total_valoare }} RON</td>
+                <td>Taxe</td>
+                <td>{{ total_taxe }} RON</td>
+                <td>Accident + Amenzi + Alte cheltuieli + Rețineri + Rate + Amortizări</td>
             </tr>
             <tr>
-                <td>Total cost</td>
-                <td>{{ total_cost }} RON</td>
+                <td>Anvelope</td>
+                <td>{{ total_anvelope }} RON</td>
+                <td>Coloană unică</td>
             </tr>
             <tr>
-                <td>Profit</td>
-                <td>{{ profit }} RON</td>
-            </tr>
-            <tr>
-                <td>Rentabilitate</td>
-                <td>{{ rentabilitate }}%</td>
+                <td><strong>Total</strong></td>
+                <td><strong>{{ total_general }} RON</strong></td>
+                <td><strong>Total general cheltuieli</strong></td>
             </tr>
         </tbody>
     </table>
 </section>
 
 <script id="chart-data" type="application/json">
-    {{ {"labels": chart_labels, "values": chart_values} | tojson }}
+    {{ {"labels": chart_labels, "values": chart_values} | tojson | safe }}
 </script>
 
 <script>
@@ -152,7 +135,7 @@
         data: {
             labels: chartLabels,
             datasets: [{
-                label: "Valoare totală (RON)",
+                label: "Total categorie (RON)",
                 data: chartValues,
                 borderWidth: 1
             }]
@@ -163,4 +146,5 @@
         }
     });
 </script>
+
 {% endblock %}
