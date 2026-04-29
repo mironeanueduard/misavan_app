@@ -11,67 +11,79 @@
         <p>Caută în datele importate din raportul Excel.</p>
     </div>
 
-    <form method="GET" action="/monitorizare" class="filters-row">
-        <input
-            type="text"
-            name="numar"
-            placeholder="Număr înmatriculare..."
-            class="filter-input"
-            value="{{ numar_filter }}"
-        >
+ <form method="GET" action="/monitorizare" class="filters-row">
+  <select name="numar" class="filter-input">
+    <option value="">Numar inmatriculare</option>
+    {% for value in numar_options %}
+        <option value="{{ value }}" {% if value == numar_filter %}selected{% endif %}>
+            {{ value }}
+        </option>
+    {% endfor %}
+</select>
 
-        <input
-            type="text"
-            name="locatie"
-            placeholder="Locație..."
-            class="filter-input"
-            value="{{ locatie_filter }}"
-        >
+   <select name="locatie" class="filter-input">
+    <option value="">Locațiile</option>
+    {% for value in locatie_options %}
+        <option value="{{ value }}" {% if value == locatie_filter %}selected{% endif %}>
+            {{ value }}
+        </option>
+    {% endfor %}
+</select>
 
-        <input
-            type="text"
-            name="sofer"
-            placeholder="Șofer..."
-            class="filter-input"
-            value="{{ sofer_filter }}"
-        >
+<select name="sofer" class="filter-input">
+    <option value="">Nume șoferi</option>
+    {% for value in sofer_options %}
+        <option value="{{ value }}" {% if value == sofer_filter %}selected{% endif %}>
+            {{ value }}
+        </option>
+    {% endfor %}
+</select>
 
-        <button type="submit" class="primary-btn">Aplică filtre</button>
-        <a href="/monitorizare" class="reset-btn">Resetează</a>
-    </form>
+<select name="centru_cost" class="filter-input">
+    <option value="">Centrele de cost</option>
+    {% for value in centru_cost_options %}
+        <option value="{{ value }}" {% if value == centru_cost_filter %}selected{% endif %}>
+            {{ value }}
+        </option>
+    {% endfor %}
+</select>
+
+    <button type="submit" class="primary-btn">Aplică filtre</button>
+    <a href="/monitorizare" class="reset-btn">Resetează</a>
+</form>
 </section>
 
 <div class="cards-grid">
     <div class="stat-card expense-repairs">
-        <p class="stat-label">Reparații filtrate</p>
-        <h3>{{ total_reparatii }} RON</h3>
+        <p class="stat-label">Reparații</p>
+        <h3>{{ total_reparatii | ron}} RON</h3>
     </div>
 
     <div class="stat-card expense-fuel">
-        <p class="stat-label">Carburant filtrat</p>
-        <h3>{{ total_carburant }} RON</h3>
+        <p class="stat-label">Carburant</p>
+        <h3>{{ total_carburant| ron }} RON</h3>
     </div>
 
     <div class="stat-card expense-taxes">
-        <p class="stat-label">Taxe filtrate</p>
-        <h3>{{ total_taxe }} RON</h3>
+        <p class="stat-label">Taxe</p>
+        <h3>{{ total_taxe | ron }} RON</h3>
     </div>
 
     <div class="stat-card expense-tires">
-        <p class="stat-label">Anvelope filtrate</p>
-        <h3>{{ total_anvelope }} RON</h3>
+        <p class="stat-label">Anvelope</p>
+        <h3>{{ total_anvelope | ron}} RON</h3>
     </div>
 
     <div class="stat-card expense-total">
         <p class="stat-label">Total filtrat</p>
-        <h3>{{ total_general }} RON</h3>
+        <h3>{{ total_general | ron }} RON</h3>
     </div>
 </div>
 
 <section class="panel">
     <div class="panel-header">
         <h2>Date monitorizare</h2>
-        <p>Se afișează maximum 200 de înregistrări.</p>
+        <p>Se afișează toate înregistrările care respectă filtrele aplicate.</p>
     </div>
 
     {% if records %}

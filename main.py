@@ -11,6 +11,19 @@ from models import db, ImportHistory, VehicleExpense
 
 app = Flask(__name__)
 app.config.from_object(Config)
+def format_ron(value):
+    if value is None:
+        value = 0
+
+    formatted = f"{value:,.2f}"
+    formatted = formatted.replace(",", "X")
+    formatted = formatted.replace(".", ",")
+    formatted = formatted.replace("X", ".")
+
+    return formatted
+
+
+app.jinja_env.filters["ron"] = format_ron
 
 db.init_app(app)
 
@@ -39,6 +52,11 @@ COLUMN_ALIASES = {
     "entitate": ["entitate"],
     "status": ["status"],
     "sofer": ["sofer", "șofer"],
+    "casco": ["casco"],
+    "rca": ["rca"],
+    "impozite": ["impozite"],
+    "roviniete": ["roviniete"],
+    "itp": ["itp"],
 
     "revizii": ["revizii"],
     "reparatii": ["reparatii", "reparații"],
@@ -320,27 +338,18 @@ def import_excel():
                                     accident = safe_float(get_cell(row, column_map, "accident"))
                                     amenzi = safe_float(get_cell(row, column_map, "amenzi"))
                                     alte_cheltuieli = safe_float(get_cell(row, column_map, "alte_cheltuieli"))
+                                    casco = safe_float(get_cell(row, column_map, "casco"))
+                                    rca = safe_float(get_cell(row, column_map, "rca"))
+                                    impozite = safe_float(get_cell(row, column_map, "impozite"))
+                                    roviniete = safe_float(get_cell(row, column_map, "roviniete"))
+                                    itp = safe_float(get_cell(row, column_map, "itp"))
                                     retineri = safe_float(get_cell(row, column_map, "retineri"))
                                     rate = safe_float(get_cell(row, column_map, "rate"))
                                     amortizari = safe_float(get_cell(row, column_map, "amortizari"))
 
-                                    total_reparatii = revizii + reparatii
-                                    total_taxe = (
-                                        accident
-                                        + amenzi
-                                        + alte_cheltuieli
-                                        + retineri
-                                        + rate
-                                        + amortizari
-                                    )
-
-                                    total_general = (
-                                        total_reparatii
-                                        + carburant
-                                        + anvelope
-                                        + acumulatori
-                                        + total_taxe
-                                    )
+                                    total_reparatii = revizii + reparatii + acumulatori + alte_cheltuieli
+                                    total_taxe = casco + rca + impozite + roviniete
+                                    total_general = total_reparatii + carburant + total_taxe + anvelope
 
                                     vehicle_expense = VehicleExpense(
                                         import_id=import_record.id,
@@ -367,6 +376,11 @@ def import_excel():
                                         retineri=retineri,
                                         rate=rate,
                                         amortizari=amortizari,
+                                        casco=casco,
+                                        rca=rca,
+                                        impozite=impozite,
+                                        roviniete=roviniete,
+                                        itp=itp,
 
                                         total_reparatii=total_reparatii,
                                         total_taxe=total_taxe,
@@ -404,6 +418,7 @@ def monitorizare():
     locatie_filter = request.args.get("locatie", "").strip()
     sofer_filter = request.args.get("sofer", "").strip()
     numar_filter = request.args.get("numar", "").strip()
+    centru_cost_filter = request.args.get("centru_cost", "").strip()
 
     query = VehicleExpense.query
 
@@ -416,7 +431,10 @@ def monitorizare():
     if numar_filter:
         query = query.filter(VehicleExpense.numar.ilike(f"%{numar_filter}%"))
 
-    records = query.order_by(VehicleExpense.id.desc()).limit(200).all()
+    if centru_cost_filter:
+        query = query.filter(VehicleExpense.centru_cost.ilike(f"%{centru_cost_filter}%"))
+
+    records = query.order_by(VehicleExpense.id.desc()).all()
 
     total_reparatii = sum(row.total_reparatii or 0 for row in records)
     total_carburant = sum(row.carburant or 0 for row in records)
@@ -424,17 +442,29 @@ def monitorizare():
     total_anvelope = sum(row.anvelope or 0 for row in records)
     total_general = sum(row.total_general or 0 for row in records)
 
+    all_records = VehicleExpense.query.all()
+
+    numar_options = sorted({row.numar for row in all_records if row.numar})
+    locatie_options = sorted({row.locatie for row in all_records if row.locatie})
+    sofer_options = sorted({row.sofer for row in all_records if row.sofer})
+    centru_cost_options = sorted({row.centru_cost for row in all_records if row.centru_cost})
+
     return render_template(
         "monitorizare.html",
         records=records,
         locatie_filter=locatie_filter,
         sofer_filter=sofer_filter,
         numar_filter=numar_filter,
+        centru_cost_filter=centru_cost_filter,
         total_reparatii=round(total_reparatii, 2),
         total_carburant=round(total_carburant, 2),
         total_taxe=round(total_taxe, 2),
         total_anvelope=round(total_anvelope, 2),
         total_general=round(total_general, 2),
+        numar_options=numar_options,
+        locatie_options=locatie_options,
+        sofer_options=sofer_options,
+        centru_cost_options=centru_cost_options,
     )
 
 
@@ -443,3 +473,5 @@ if __name__ == "__main__":
         db.create_all()
 
     app.run(debug=True)
+
+    

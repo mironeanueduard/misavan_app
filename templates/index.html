@@ -25,32 +25,32 @@
 <div class="cards-grid">
     <div class="stat-card expense-repairs">
         <p class="stat-label">Reparații</p>
-        <h3>{{ total_reparatii }} RON</h3>
-        <span class="card-helper">Revizii + Reparații</span>
+        <h3>{{ total_reparatii | ron }} RON</h3>
+        
     </div>
 
     <div class="stat-card expense-fuel">
         <p class="stat-label">Carburant</p>
-        <h3>{{ total_carburant }} RON</h3>
-        <span class="card-helper">Coloană unică</span>
+        <h3>{{ total_carburant | ron }} RON</h3>
+      
     </div>
 
     <div class="stat-card expense-taxes">
         <p class="stat-label">Taxe</p>
-        <h3>{{ total_taxe }} RON</h3>
-        <span class="card-helper">Costuri grupate</span>
+        <h3>{{ total_taxe | ron }} RON</h3>
+        
     </div>
 
     <div class="stat-card expense-tires">
         <p class="stat-label">Anvelope</p>
-        <h3>{{ total_anvelope }} RON</h3>
-        <span class="card-helper">Coloană unică</span>
+        <h3>{{ total_anvelope | ron }} RON</h3>
+       
     </div>
 
     <div class="stat-card expense-total">
         <p class="stat-label">Total</p>
-        <h3>{{ total_general }} RON</h3>
-        <span class="card-helper">Total cheltuieli</span>
+        <h3>{{ total_general | ron}} RON</h3>
+        
     </div>
 </div>
 
@@ -82,37 +82,34 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th>Categorie</th>
-                <th>Valoare</th>
-                <th>Observație</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Reparații</td>
-                <td>{{ total_reparatii }} RON</td>
-                <td>Revizii + Reparații</td>
-            </tr>
-            <tr>
-                <td>Carburant</td>
-                <td>{{ total_carburant }} RON</td>
-                <td>Coloană unică</td>
-            </tr>
-            <tr>
-                <td>Taxe</td>
-                <td>{{ total_taxe }} RON</td>
-                <td>Accident + Amenzi + Alte cheltuieli + Rețineri + Rate + Amortizări</td>
-            </tr>
-            <tr>
-                <td>Anvelope</td>
-                <td>{{ total_anvelope }} RON</td>
-                <td>Coloană unică</td>
-            </tr>
-            <tr>
-                <td><strong>Total</strong></td>
-                <td><strong>{{ total_general }} RON</strong></td>
-                <td><strong>Total general cheltuieli</strong></td>
-            </tr>
+    <td>Reparații</td>
+    <td>{{ total_reparatii }} RON</td>
+    <td>Revizii + Reparații + Acumulatori + Alte cheltuieli</td>
+</tr>
+
+<tr>
+    <td>Carburant</td>
+    <td>{{ total_carburant }} RON</td>
+    <td>Carburant</td>
+</tr>
+
+<tr>
+    <td>Taxe</td>
+    <td>{{ total_taxe }} RON</td>
+    <td>CASCO + RCA + Impozite + Roviniete</td>
+</tr>
+
+<tr>
+    <td>Anvelope</td>
+    <td>{{ total_anvelope }} RON</td>
+    <td>Anvelope</td>
+</tr>
+
+<tr>
+    <td><strong>Total</strong></td>
+    <td><strong>{{ total_general }} RON</strong></td>
+    <td><strong>Reparații + Carburant + Taxe + Anvelope</strong></td>
+</tr>
         </tbody>
     </table>
 </section>
