@@ -52,3 +52,22 @@ class VehicleExpense(db.Model):
     total_reparatii = db.Column(db.Float, default=0)
     total_taxe = db.Column(db.Float, default=0)
     total_general = db.Column(db.Float, default=0)
+
+
+class VehicleBudget(db.Model):
+    __tablename__ = "vehicle_budget"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    numar = db.Column(db.String(100), nullable=True)
+    marca = db.Column(db.String(100), nullable=True)
+    model = db.Column(db.String(100), nullable=True)
+    locatie = db.Column(db.String(100), nullable=True)
+    centru_cost = db.Column(db.String(100), nullable=True)
+    sofer = db.Column(db.String(150), nullable=True)
+
+    buget_reparatii = db.Column(db.Float, default=0)
+    buget_taxe = db.Column(db.Float, default=0)
+    buget_total = db.Column(db.Float, default=0)
+
+    imported_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)

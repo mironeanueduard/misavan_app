@@ -86,45 +86,74 @@
         <p>Se afișează toate înregistrările care respectă filtrele aplicate.</p>
     </div>
 
-    {% if records %}
-        <div class="table-wrapper">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Număr</th>
-                        <th>Marcă</th>
-                        <th>Model</th>
-                        <th>Locație</th>
-                        <th>Centru cost</th>
-                        <th>Șofer</th>
-                        <th>Reparații</th>
-                        <th>Carburant</th>
-                        <th>Taxe</th>
-                        <th>Anvelope</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
+  {% if records %}
+<div class="table-wrapper">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Număr</th>
+                <th>Marcă</th>
+                <th>Model</th>
+                <th>Locație</th>
+                <th>Centru cost</th>
+                <th>Șofer</th>
+                <th>Reparații</th>
+                <th>Carburant</th>
+                <th>Taxe</th>
+                <th>Anvelope</th>
+                <th>Total</th>
+            </tr>
+        </thead>
 
-                <tbody>
-                    {% for row in records %}
-                    <tr>
-                        <td>{{ row.numar }}</td>
-                        <td>{{ row.marca }}</td>
-                        <td>{{ row.model }}</td>
-                        <td>{{ row.locatie }}</td>
-                        <td>{{ row.centru_cost }}</td>
-                        <td>{{ row.sofer }}</td>
-                        <td>{{ row.total_reparatii | round(2) }}</td>
-                        <td>{{ row.carburant | round(2) }}</td>
-                        <td>{{ row.total_taxe | round(2) }}</td>
-                        <td>{{ row.anvelope | round(2) }}</td>
-                        <td><strong>{{ row.total_general | round(2) }}</strong></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% else %}
+        <tbody>
+            {% for item in records %}
+            {% set row = item.data %}
+            <tr>
+                <td>{{ row.numar }}</td>
+                <td>{{ row.marca }}</td>
+                <td>{{ row.model }}</td>
+                <td>{{ row.locatie }}</td>
+                <td>{{ row.centru_cost }}</td>
+                <td>{{ row.sofer }}</td>
+
+                <td>
+                    {{ row.total_reparatii | ron }}<br>
+                    <small>Buget: {{ item.buget_reparatii | ron }}</small><br>
+                    {% if item.diff_reparatii > 0 %}
+                        <span style="color:red;">+{{ item.diff_reparatii | ron }}</span>
+                    {% else %}
+                        <span style="color:green;">{{ item.diff_reparatii | ron }}</span>
+                    {% endif %}
+                </td>
+
+                <td>{{ row.carburant | ron }}</td>
+
+                <td>
+                    {{ row.total_taxe | ron }}<br>
+                    <small>Buget: {{ item.buget_taxe | ron }}</small><br>
+                    {% if item.diff_taxe > 0 %}
+                        <span style="color:red;">+{{ item.diff_taxe | ron }}</span>
+                    {% else %}
+                        <span style="color:green;">{{ item.diff_taxe | ron }}</span>
+                    {% endif %}
+                </td>
+
+                <td>{{ row.anvelope | ron }}</td>
+
+                <td>
+                    <strong>{{ row.total_general | ron }}</strong><br>
+                    <small>Buget: {{ item.buget_total | ron }}</small><br>
+                    {% if item.diff_total > 0 %}
+                        <span style="color:red;">Depășit +{{ item.diff_total | ron }}</span>
+                    {% else %}
+                        <span style="color:green;">OK {{ item.diff_total | ron }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
         <div class="empty-state">
             <h3>Nu există rezultate</h3>
             <p>Încearcă alte filtre sau încarcă un fișier Excel.</p>

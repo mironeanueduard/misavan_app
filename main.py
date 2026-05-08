@@ -7,7 +7,7 @@ import unicodedata
 import re
 
 from config import Config
-from models import db, ImportHistory, VehicleExpense
+from models import db, ImportHistory, VehicleExpense, VehicleBudget
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -69,6 +69,8 @@ COLUMN_ALIASES = {
     "retineri": ["retineri", "rețineri"],
     "rate": ["rate"],
     "amortizari": ["amortizari", "amortizări"],
+    "taxe": ["taxe"],
+    "total": ["total"],
 }
 
 
@@ -413,6 +415,118 @@ def import_excel():
         recent_imports=recent_imports,
     )
 
+@app.route("/import-budget", methods=["POST"])
+def import_budget():
+    if "budget_file" not in request.files:
+        return "Nu a fost trimis niciun fișier de buget.", 400
+
+    file = request.files["budget_file"]
+
+    if file.filename == "":
+        return "Te rog selectează un fișier de buget.", 400
+
+    if not allowed_file(file.filename):
+        return "Sunt acceptate doar fișiere .xls și .xlsx", 400
+
+    filename = secure_filename(file.filename)
+    save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    file.save(save_path)
+
+    try:
+        sheet_name, rows = read_excel_rows(save_path)
+
+        if not rows:
+            return "Fișierul de buget este gol.", 400
+
+        header_row_index, detected_headers, match_count = find_header_row(rows)
+
+        if header_row_index is None or match_count == 0:
+            return "Nu am putut identifica header-ul în fișierul de buget.", 400
+
+        preview_headers = [
+            str(cell).strip() if cell is not None else ""
+            for cell in detected_headers
+        ]
+
+        column_map = build_column_map(preview_headers)
+
+        required_budget_columns = ["numar", "reparatii", "taxe", "total"]
+
+        missing_columns = [
+            col for col in required_budget_columns if col not in column_map
+        ]
+
+        if missing_columns:
+            return f"Lipsesc coloanele obligatorii pentru buget: {', '.join(missing_columns)}", 400
+
+        data_rows = rows[header_row_index + 1:]
+
+        non_empty_data_rows = []
+        numar_index = column_map.get("numar")
+
+        for row in data_rows:
+            if not any(cell is not None and str(cell).strip() != "" for cell in row):
+                continue
+
+            if numar_index is None or numar_index >= len(row):
+                continue
+
+            numar_value = str(row[numar_index]).strip() if row[numar_index] is not None else ""
+
+            if not numar_value:
+                continue
+
+            if normalize_text(numar_value) in [
+                "numar",
+                "numar de inmatriculare",
+                "dashboard",
+                "reparatii",
+                "taxe",
+                "total",
+            ]:
+                continue
+
+            non_empty_data_rows.append(row)
+
+        VehicleBudget.query.delete()
+        db.session.commit()
+
+        for row in non_empty_data_rows:
+            budget = VehicleBudget(
+                numar=str(get_cell(row, column_map, "numar") or ""),
+                marca=str(get_cell(row, column_map, "marca") or ""),
+                model=str(get_cell(row, column_map, "model") or ""),
+                locatie=str(get_cell(row, column_map, "locatie") or ""),
+                centru_cost=str(get_cell(row, column_map, "centru_cost") or ""),
+                sofer=str(get_cell(row, column_map, "sofer") or ""),
+
+                buget_reparatii=safe_float(get_cell(row, column_map, "reparatii")),
+                buget_taxe=safe_float(get_cell(row, column_map, "taxe")),
+                buget_total=safe_float(get_cell(row, column_map, "total")),
+            )
+
+            db.session.add(budget)
+
+        import_record = ImportHistory(
+            filename=filename,
+            sheet_name=sheet_name,
+            total_rows=len(non_empty_data_rows),
+            status="BUDGET_SUCCESS"
+        )
+
+        db.session.add(import_record)
+        db.session.commit()
+
+        return render_template(
+            "import_success.html",
+            message=f'Bugetul "{filename}" a fost importat cu succes. Rânduri salvate: {len(non_empty_data_rows)}'
+        )
+
+    except Exception as e:
+        return f"A apărut o eroare la importul bugetului: {str(e)}", 500
+
+
+
 @app.route("/monitorizare")
 def monitorizare():
     locatie_filter = request.args.get("locatie", "").strip()
@@ -436,6 +550,9 @@ def monitorizare():
 
     records = query.order_by(VehicleExpense.id.desc()).all()
 
+    budgets = VehicleBudget.query.all()
+    budget_map = {normalize_plate(b.numar): b for b in budgets}
+
     total_reparatii = sum(row.total_reparatii or 0 for row in records)
     total_carburant = sum(row.carburant or 0 for row in records)
     total_taxe = sum(row.total_taxe or 0 for row in records)
@@ -449,9 +566,34 @@ def monitorizare():
     sofer_options = sorted({row.sofer for row in all_records if row.sofer})
     centru_cost_options = sorted({row.centru_cost for row in all_records if row.centru_cost})
 
+    enriched_records = []
+
+    for row in records:
+        budget = budget_map.get(normalize_plate(row.numar))
+
+        buget_reparatii = budget.buget_reparatii if budget else 0
+        buget_taxe = budget.buget_taxe if budget else 0
+        buget_total = budget.buget_total if budget else 0
+
+        diff_reparatii = (row.total_reparatii or 0) - (buget_reparatii or 0)
+        diff_taxe = (row.total_taxe or 0) - (buget_taxe or 0)
+        diff_total = (row.total_general or 0) - (buget_total or 0)
+
+        enriched_records.append({
+            "data": row,
+            "buget_reparatii": buget_reparatii,
+            "buget_taxe": buget_taxe,
+            "buget_total": buget_total,
+            "diff_reparatii": diff_reparatii,
+            "diff_taxe": diff_taxe,
+            "diff_total": diff_total,
+        })
+
+
+
     return render_template(
         "monitorizare.html",
-        records=records,
+        records=enriched_records,
         locatie_filter=locatie_filter,
         sofer_filter=sofer_filter,
         numar_filter=numar_filter,
@@ -466,6 +608,20 @@ def monitorizare():
         sofer_options=sofer_options,
         centru_cost_options=centru_cost_options,
     )
+
+
+def normalize_plate(value):
+    if not value:
+        return ""
+
+    return (
+        str(value)
+        .upper()
+        .replace(" ", "")
+        .replace("-", "")
+        .strip()
+    )
+
 
 
 if __name__ == "__main__":
