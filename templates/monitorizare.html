@@ -126,7 +126,16 @@
                     {% endif %}
                 </td>
 
-                <td>{{ row.carburant | ron }}</td>
+               <td>
+                    {{ row.carburant | ron }}<br>
+                    <small>Buget: {{ item.buget_carburant | ron }}</small><br>
+
+                    {% if item.diff_carburant > 0 %}
+                        <span style="color:red;">+{{ item.diff_carburant | ron }}</span>
+                    {% else %}
+                        <span style="color:green;">{{ item.diff_carburant | ron }}</span>
+                    {% endif %}
+</td>
 
                 <td>
                     {{ row.total_taxe | ron }}<br>

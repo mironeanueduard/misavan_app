@@ -48,6 +48,25 @@
 </section>
 
 
+<section class="panel">
+    <div class="panel-header">
+        <h2>Încarcă fișier buget carburant</h2>
+        <p>Importă bugetul lunar de carburant pe mașini.</p>
+    </div>
+
+    <form method="POST" action="/import-fuel-budget" enctype="multipart/form-data" class="upload-box">
+        <p>Selectează fișierul Excel cu bugetul de carburant.</p>
+
+        <div class="upload-actions">
+            <input type="file" name="fuel_budget_file" id="fuel_budget_file" accept=".xls,.xlsx" hidden>
+            <label for="fuel_budget_file" class="primary-btn">Alege fișier carburant</label>
+            <span id="fuel-budget-file-name" class="file-name">Niciun fișier selectat</span>
+        </div>
+
+        <button type="submit" class="primary-btn secondary-btn">Încarcă buget carburant</button>
+    </form>
+</section>
+
 {% if uploaded_filename %}
 <section class="panel">
     <div class="panel-header">
@@ -196,5 +215,20 @@
             budgetFileName.textContent = "Niciun fișier selectat";
         }
     });
+
+const fuelBudgetFileInput = document.getElementById("fuel_budget_file");
+const fuelBudgetFileName = document.getElementById("fuel-budget-file-name");
+
+if (fuelBudgetFileInput) {
+    fuelBudgetFileInput.addEventListener("change", function () {
+        if (this.files.length > 0) {
+            fuelBudgetFileName.textContent = this.files[0].name;
+        } else {
+            fuelBudgetFileName.textContent = "Niciun fișier selectat";
+        }
+    });
+}
+
+
 </script>
 {% endblock %}

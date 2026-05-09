@@ -71,3 +71,21 @@ class VehicleBudget(db.Model):
     buget_total = db.Column(db.Float, default=0)
 
     imported_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
+class VehicleFuelBudget(db.Model):
+    __tablename__ = "vehicle_fuel_budget"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    numar = db.Column(db.String(100), nullable=True)
+    marca = db.Column(db.String(100), nullable=True)
+    model = db.Column(db.String(100), nullable=True)
+    locatie = db.Column(db.String(100), nullable=True)
+    centru_cost = db.Column(db.String(100), nullable=True)
+    sofer = db.Column(db.String(150), nullable=True)
+
+    luna = db.Column(db.String(50), nullable=True)
+    buget_carburant = db.Column(db.Float, default=0)
+
+    imported_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
